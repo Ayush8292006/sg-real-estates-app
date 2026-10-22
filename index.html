@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF9F5">
+<title>SG Real Estates</title>
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('sg-theme'); } catch (e) {}
+    if (!t) t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+:root,[data-theme="light"]{
+  --page:#ECE7DE;
+  --bg:#FBF9F5; --surface:#FFFFFF; --sunk:#F3EFE8;
+  --ink:#1B1915; --muted:#6B645A; --faint:#8C857A;
+  --line:#E6E0D5; --line-2:#D6CEC0;
+  --accent:#9A7A3C;           /* gold used for small marks and text */
+  --primary:#1B1915; --on-primary:#FBF9F5;
+  --err:#A93A1E;
+  color-scheme:light;
+}
+[data-theme="dark"]{
+  --page:#050505;
+  --bg:#0E0D0B; --surface:#171512; --sunk:#1F1C18;
+  --ink:#EDE7DC; --muted:#9C9488; --faint:#8A8277;
+  --line:#2A2621; --line-2:#3A352E;
+  --accent:#D1AE6C;
+  --primary:#D1AE6C; --on-primary:#0E0D0B;
+  --err:#E79A80;
+  color-scheme:dark;
+}
+:root{
+  --display:'Marcellus',Georgia,serif;
+  --sans:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:var(--page);color:var(--ink);font-family:var(--sans);font-size:15px;display:flex;align-items:center;justify-content:center;-webkit-font-smoothing:antialiased;transition:background-color .3s}
+a{color:inherit}
+button{font-family:inherit;color:inherit;cursor:pointer}
+img{display:block}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{position:relative;width:390px;height:844px;max-height:100vh;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;border-radius:38px;box-shadow:0 30px 80px rgba(0,0,0,.25);transition:background-color .3s}
+@media (max-width:500px){.app{width:100%;height:100%;max-height:none;border-radius:0;box-shadow:none}}
+
+.screen{display:none;flex:1;min-height:0;flex-direction:column}
+.screen.active{display:flex;animation:enter .28s ease-out}
+.screen.active.push{animation:push .3s ease-out}
+@keyframes enter{from{opacity:0}to{opacity:1}}
+@keyframes push{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.pad{padding:0 20px}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}#success .tick path{stroke-dashoffset:0}}
+
+/* type */
+.display{font-family:var(--display);font-weight:400;letter-spacing:.2px}
+.label{font-size:11px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.accent{color:var(--accent)}
+hr{border:0;border-top:1px solid var(--line);margin:0}
+
+/* buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:10px;border:0;background:var(--primary);color:var(--on-primary);font-size:15px;font-weight:600;text-decoration:none;width:100%;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.985);opacity:.9}
+.btn.line{background:transparent;color:var(--ink);border:1px solid var(--line-2)}
+.icon-btn{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:transparent;display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;text-decoration:none}
+
+/* header */
+.head{display:flex;align-items:center;gap:10px;padding:16px 20px 12px}
+.head .name{flex:1;line-height:1.1}
+.head .name b{display:block;font-family:var(--display);font-weight:400;font-size:19px}
+.head .name small{font-size:10.5px;letter-spacing:1.6px;color:var(--accent);font-weight:600}
+
+/* splash */
+#splash{align-items:center;justify-content:center;text-align:center;padding:40px}
+#splash img{width:120px;animation:rise .8s ease-out both}
+#splash .t{margin-top:28px;font-family:var(--display);font-size:30px;letter-spacing:3px;animation:rise .8s ease-out .25s both}
+#splash .s{margin-top:8px;font-size:11px;letter-spacing:4px;color:var(--accent);font-weight:600;animation:rise .8s ease-out .4s both}
+#splash .foot{position:absolute;bottom:40px;left:0;right:0;font-size:12px;color:var(--muted);animation:enter 1s ease-out .8s both}
+
+/* home */
+.intro{padding:14px 20px 4px}
+.intro h1{margin:6px 0 0;font-family:var(--display);font-weight:400;font-size:31px;line-height:1.15}
+.svc-list{margin:22px 20px 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.svc{display:flex;align-items:center;gap:14px;width:100%;padding:18px 16px;background:transparent;border:0;text-align:left;transition:background-color .15s}
+.svc:active{background:var(--sunk)}
+.svc + .svc{border-top:1px solid var(--line)}
+.svc .ic{width:46px;height:46px;border-radius:10px;background:var(--sunk);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0}
+.svc b{display:block;font-size:16px;font-weight:700}
+.svc span{display:block;font-size:13.5px;color:var(--muted);margin-top:2px}
+.svc .arr{color:var(--faint)}
+
+.sec{display:flex;align-items:baseline;justify-content:space-between;padding:28px 20px 10px}
+.sec h2{margin:0;font-family:var(--display);font-weight:400;font-size:21px}
+.sec button{border:0;background:none;font-size:13px;font-weight:600;color:var(--accent);min-height:44px;padding:0}
+
+.picks{display:flex;gap:8px;overflow-x:auto;padding:0 20px 2px;scrollbar-width:none}
+.picks::-webkit-scrollbar{display:none}
+.pick{flex-shrink:0;height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--line-2);background:transparent;font-size:13.5px;font-weight:500;white-space:nowrap}
+.pick:active{background:var(--sunk)}
+
+.proj{margin:0 20px 14px;border-radius:14px;overflow:hidden;background:var(--surface);border:1px solid var(--line)}
+.proj .ph{height:180px;overflow:hidden;background:var(--sunk)}
+.proj .ph img{width:100%;height:100%;object-fit:cover}
+.proj .bd{padding:14px 16px 16px}
+.proj h3{margin:4px 0 0;font-family:var(--display);font-weight:400;font-size:20px}
+.proj .meta{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13px}
+.proj .meta div small{display:block;color:var(--muted);font-size:11.5px}
+.proj .meta div b{font-weight:700}
+.proj .act{display:flex;gap:8px;margin-top:14px}
+.proj .act .btn{height:44px;font-size:14px}
+
+.callbox{margin:14px 20px 0;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--sunk)}
+.callbox .row2{display:flex;gap:8px;margin-top:12px}
+.callbox .btn{height:44px;font-size:14px}
+.sign{padding:24px 20px 28px;font-size:12px;color:var(--faint);text-align:center;line-height:1.6}
+
+/* forms */
+.ftop{display:flex;align-items:center;gap:10px;padding:14px 16px 6px}
+.ftop .label{color:var(--accent)}
+.fbody{padding:8px 20px 24px}
+.fbody h1{margin:0;font-family:var(--display);font-weight:400;font-size:28px;line-height:1.15}
+.fbody .sub{margin-top:6px;color:var(--muted);font-size:14px}
+.q{margin-top:24px}
+.q > .label{display:block;margin-bottom:10px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts.two{display:grid;grid-template-columns:1fr 1fr}
+.opt{min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);font-size:14px;font-weight:500;transition:background-color .15s,color .15s,border-color .15s}
+.opts.two .opt{height:50px;text-align:left;padding:0 14px}
+.opt[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--on-primary);font-weight:600}
+.field{display:block;margin-top:16px}
+.field .label{display:block;margin-bottom:8px}
+.field input{width:100%;height:50px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);padding:0 14px;font-family:inherit;font-size:15px;transition:border-color .15s}
+.field input::placeholder{color:var(--faint)}
+.field input:focus{outline:none;border-color:var(--ink)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cols .field{margin-top:0}
+.phone{display:flex;align-items:center;border:1px solid var(--line-2);border-radius:10px;background:var(--surface);transition:border-color .15s}
+.phone:focus-within{border-color:var(--ink)}
+.phone span{padding:0 4px 0 14px;font-size:15px;color:var(--muted)}
+.phone input{border:0;height:48px;background:transparent}
+.ffoot{padding:12px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg)}
+.err{color:var(--err);font-size:13px;font-weight:600;margin-bottom:10px;animation:rise .2s ease-out}
+.err:empty{display:none}
+.note{margin-top:10px;text-align:center;font-size:12px;color:var(--faint)}
+
+/* success */
+#success{padding:0 24px;justify-content:center}
+.tick{width:64px;height:64px;border-radius:50%;border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;color:var(--accent)}
+.tick path{stroke-dasharray:40;stroke-dashoffset:40}
+#success.active .tick path{animation:draw .45s ease-out .15s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.slip{margin-top:24px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.slip > div{display:flex;justify-content:space-between;gap:16px;padding:12px 16px;font-size:14px}
+.slip > div + div{border-top:1px dashed var(--line-2)}
+.slip small{color:var(--muted)}
+.slip b{text-align:right;font-weight:600}
+
+/* queries */
+.qitem{margin:0 20px 10px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);animation:rise .3s ease-out both}
+.qitem .top{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.qitem .top b{color:var(--accent);font-weight:700;letter-spacing:.5px}
+.qitem .k{margin-top:6px;font-weight:700}
+.qitem .s{font-size:13.5px;color:var(--muted);margin-top:2px}
+.qitem .st{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;font-weight:600}
+.qitem .st i{width:6px;height:6px;border-radius:3px;background:var(--accent)}
+.empty{margin:50px 32px 0;text-align:center}
+
+/* contact */
+.list{margin:0 20px;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.li{display:flex;align-items:center;gap:14px;width:100%;min-height:60px;padding:12px 16px;background:transparent;border:0;text-align:left;text-decoration:none;font-size:15px}
+.li + .li{border-top:1px solid var(--line)}
+.li svg{color:var(--accent);flex-shrink:0}
+.li .grow{flex:1}
+.li small{display:block;color:var(--muted);font-size:12.5px}
+.tog{width:46px;height:28px;border-radius:14px;background:var(--line-2);position:relative;transition:background-color .2s;flex-shrink:0}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:11px;background:#fff;transition:transform .2s ease-out}
+[data-theme="dark"] .tog{background:var(--accent)}
+[data-theme="dark"] .tog::after{transform:translateX(18px)}
+
+/* tab bar */
+.tabs{display:none;border-top:1px solid var(--line);background:var(--bg);padding:0 6px env(safe-area-inset-bottom)}
+.tabs.show{display:flex}
+.tabs button{flex:1;position:relative;min-height:60px;border:0;background:transparent;color:var(--faint);font-size:11.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.tabs button[aria-current="page"]{color:var(--ink)}
+.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-1px;left:30%;right:30%;height:2px;background:var(--accent)}
+</style>
+</head>
+<body>
+<main class="app">
+
+<!-- SPLASH -->
+<section class="screen active" id="splash" aria-label="SG Real Estates">
+  <img class="brand" src="assets/sg-mono-deep.png" alt="SG Real Estates logo">
+  <div class="t">SG REAL ESTATES</div>
+  <div class="s">ONE STOP SOLUTION</div>
+  <div class="foot">Buying Advisory &nbsp;|&nbsp; Construction Services</div>
+</section>
+
+<!-- HOME -->
+<section class="screen" id="home" aria-label="Home">
+  <div class="head">
+    <img class="brand" src="assets/sg-mono-deep.png" alt="" style="width:30px">
+    <div class="name"><b>SG Real Estates</b><small>ONE STOP SOLUTION</small></div>
+    <button class="icon-btn" data-theme-toggle aria-label="Dark / light mode"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use class="theme-ic" href="#i-moon"/></svg></button>
+    <a class="icon-btn" href="tel:+919115105609" aria-label="Call"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg></a>
+  </div>
+  <div class="scroll">
+    <div class="intro">
+      <div class="muted" style="font-size:14px">Hello,</div>
+      <h1>Buying a home or building one? We handle both.</h1>
+    </div>
+
+    <div class="svc-list">
+      <button class="svc" data-go="advisory">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 21 2M18 5l3 3M15 8l2 2"/></svg></div>
+        <div style="flex:1"><b>Buying Advisory</b><span>The right property at the right price</span></div>
+        <svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <button class="svc" data-go="construction">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V9l7-5 7 5v12M10 21v-5h4v5"/></svg></div>
+        <div style="flex:1"><b>Construction Services</b><span>From floor plan to handover</span></div>
+        <svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="sec"><h2>What are you looking for?</h2></div>
+    <div class="picks">
+      <button class="pick" data-prefill="advisory|ptype=Flat / Apartment">2/3 BHK flat</button>
+      <button class="pick" data-prefill="advisory|ptype=Plot">Plot for a house</button>
+      <button class="pick" data-prefill="advisory|purpose=Investment">Investment</button>
+      <button class="pick" data-prefill="construction|service=Renovation">Renovation</button>
+      <button class="pick" data-prefill="construction|service=Interiors">Interiors</button>
+      <button class="pick" data-prefill="construction|service=Turnkey (complete build)">Turnkey build</button>
+    </div>
+
+    <div class="sec"><h2>Projects</h2><button data-go="projects">View all</button></div>
+    <article class="proj">
+      <div class="ph"><img src="assets/vienna.jpg" alt="Vienna House Residences building" style="object-position:50% 35%"></div>
+      <div class="bd">
+        <div class="label">Al Marjan Island, UAE</div>
+        <h3>Vienna House Residences</h3>
+        <div class="meta">
+          <div><small>Unit 211 · 1 Bed</small><b>AED 1.765M</b></div>
+          <div><small>Payment</small><b>30 / 70</b></div>
+          <div><small>Handover</small><b>Q3 2028</b></div>
+        </div>
+      </div>
+    </article>
+
+    <div class="callbox">
+      <div style="font-weight:700">Prefer to talk to someone?</div>
+      <div class="muted" style="font-size:14px;margin-top:2px">+91 91151 05609</div>
+      <div class="row2">
+        <a class="btn" href="tel:+919115105609"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>Call</a>
+        <a class="btn line" href="https://wa.me/919115105609" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-wa"/></svg>WhatsApp</a>
+      </div>
+    </div>
+    <div class="sign">SG Real Estates<br>Buying Advisory | Construction Services</div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="screen" id="projects" aria-label="Projects">
+  <div class="head"><div class="name"><b style="font-size:24px">Projects</b></div></div>
+  <div class="scroll" style="padding-top:4px">
+    <article class="proj">
+      <div class="ph" style="height:210px"><img src="assets/vienna.jpg" alt="Vienna House Residences building" style="object-position:50% 35%"></div>
+      <div class="bd">
+        <div class="label">Al Marjan Island, UAE · Sugee Developers</div>
+        <h3>Vienna House Residences</h3>
+        <div class="muted" style="font-size:13.5px;margin-top:4px">By Wyndham. Full sea view, fully furnished.</div>
+        <div class="meta">
+          <div><small>Unit 211</small><b>Modular 1 Bed</b></div>
+          <div><small>Area</small><b>585.66 sq ft</b></div>
+        </div>
+        <div class="meta" style="border-top:0;padding-top:0">
+          <div><small>Price</small><b>AED 1,765,000</b></div>
+          <div><small>Handover</small><b>Q3 2028</b></div>
+        </div>
+        <div class="act"><button class="btn" data-enquire="Vienna House Residences, Al Marjan Island">Enquire now</button></div>
+      </div>
+    </article>
+    <article class="proj">
+      <div class="ph" style="height:210px"><img src="assets/escotia.jpg" alt="Escotia Towers" style="object-position:50% 50%"></div>
+      <div class="bd">
+        <div class="label">PR7 Airport Road, Zirakpur</div>
+        <h3>Escotia Towers</h3>
+        <div class="muted" style="font-size:13.5px;margin-top:4px">RERA: PBRERA-SAS81-PR1445</div>
+        <div class="meta">
+          <div><small>Chandigarh Airport</small><b>8 min</b></div>
+          <div><small>IT City, Mohali</small><b>8 min</b></div>
+          <div><small>D-Mart</small><b>2 min</b></div>
+        </div>
+        <div class="act"><button class="btn" data-enquire="Escotia Towers, Zirakpur">Enquire now</button></div>
+      </div>
+    </article>
+    <div style="height:10px"></div>
+  </div>
+</section>
+
+<!-- BUYING ADVISORY -->
+<section class="screen" id="advisory" aria-label="Buying Advisory">
+  <div class="ftop">
+    <button class="icon-btn" data-back aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+    <div class="label">Buying Advisory</div>
+  </div>
+  <form class="scroll fbody" id="advForm" novalidate>
+    <h1>What kind of property do you need?</h1>
+    <div class="sub">Share a few details and one of our advisors will call you.</div>
+    <div class="q"><span class="label">Property type</span><div class="opts two" data-opts="ptype" data-list="Flat / Apartment|Villa / House|Plot|Commercial" data-default="Flat / Apartment"></div></div>
+    <div class="q"><span class="label">Budget</span><div class="opts" data-opts="budget" data-list="Under ₹50 L|₹50 L – 1 Cr|₹1 – 2 Cr|₹2 – 5 Cr|₹5 Cr+" data-default="₹50 L – 1 Cr"></div></div>
+    <div class="q"><span class="label">Purpose</span><div class="opts" data-opts="purpose" data-list="To live in|Investment|Rental income" data-default="To live in"></div></div>
+    <label class="field" style="margin-top:24px"><span class="label">Location</span><input name="location" placeholder="Zirakpur, Mohali, Dubai…" autocomplete="address-level2"></label>
+    <label class="field"><span class="label">Name</span><input name="name" placeholder="Your name" autocomplete="name"></label>
+    <label class="field"><span class="label">Mobile</span><span class="phone"><span>+91</span><input name="phone" type="tel" inputmode="numeric" maxlength="11" placeholder="98765 43210" autocomplete="tel-national"></span></label>
+  </form>
+  <div class="ffoot">
+    <div class="err" id="advErr" role="alert"></div>
+    <button class="btn" type="submit" form="advForm">Send query</button>
+    <div class="note">Your number stays with SG Real Estates only.</div>
+  </div>
+</section>
+
+<!-- CONSTRUCTION -->
+<section class="screen" id="construction" aria-label="Construction Services">
+  <div class="ftop">
+    <button class="icon-btn" data-back aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+    <div class="label">Construction Services</div>
+  </div>
+  <form class="scroll fbody" id="conForm" novalidate>
+    <h1>What would you like to build?</h1>
+    <div class="sub">Tell us the basics and we'll call you with an estimate.</div>
+    <div class="q"><span class="label">Type of work</span><div class="opts two" data-opts="service" data-list="New construction|Renovation|Interiors|Turnkey (complete build)" data-default="New construction"></div></div>
+    <div class="q"><span class="label">Floors</span><div class="opts" data-opts="floors" data-list="Ground|G+1|G+2|G+3" data-default="G+1"></div></div>
+    <div class="q"><span class="label">When do you want to start?</span><div class="opts" data-opts="timeline" data-list="Right away|Within 3 months|Just planning" data-default="Within 3 months"></div></div>
+    <div class="cols" style="margin-top:24px">
+      <label class="field"><span class="label">Plot size</span><input name="plot" placeholder="200 sq yd"></label>
+      <label class="field"><span class="label">City</span><input name="city" placeholder="Mohali" autocomplete="address-level2"></label>
+    </div>
+    <label class="field"><span class="label">Name</span><input name="name" placeholder="Your name" autocomplete="name"></label>
+    <label class="field"><span class="label">Mobile</span><span class="phone"><span>+91</span><input name="phone" type="tel" inputmode="numeric" maxlength="11" placeholder="98765 43210" autocomplete="tel-national"></span></label>
+  </form>
+  <div class="ffoot">
+    <div class="err" id="conErr" role="alert"></div>
+    <button class="btn" type="submit" form="conForm">Request an estimate</button>
+    <div class="note">Your number stays with SG Real Estates only.</div>
+  </div>
+</section>
+
+<!-- SUCCESS -->
+<section class="screen" id="success" aria-label="Query received">
+  <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+  <h1 class="display" style="margin:20px 0 0;font-size:28px">Thank you, <span id="sName"></span>.</h1>
+  <p class="muted" style="margin:8px 0 0;font-size:15px;line-height:1.5">We have your query. An advisor will call you on <b style="color:var(--ink)" id="sPhone"></b> shortly.</p>
+  <div class="slip">
+    <div><small>Reference</small><b class="accent" id="sId"></b></div>
+    <div><small>Service</small><b id="sKind"></b></div>
+    <div><small>Details</small><b id="sSummary"></b></div>
+  </div>
+  <a class="btn" id="sWa" href="#" target="_blank" rel="noopener" style="margin-top:20px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-wa"/></svg>Also send on WhatsApp</a>
+  <button class="btn line" data-go="home" style="margin-top:10px">Home</button>
+</section>
+
+<!-- MY QUERIES -->
+<section class="screen" id="enquiries" aria-label="My queries">
+  <div class="head"><div class="name"><b style="font-size:24px">My queries</b></div></div>
+  <div class="scroll" style="padding-top:4px">
+    <div class="empty" id="empty">
+      <div class="display" style="font-size:21px">No queries yet</div>
+      <p class="muted" style="font-size:14px;margin:6px 0 20px">Queries you send will show up here.</p>
+      <button class="btn" data-go="advisory">Buying Advisory</button>
+      <button class="btn line" data-go="construction" style="margin-top:8px">Construction Services</button>
+    </div>
+    <div id="qList"></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="screen" id="profile" aria-label="Contact">
+  <div class="head"><div class="name"><b style="font-size:24px">Contact</b></div></div>
+  <div class="scroll" style="padding-top:4px">
+    <div style="display:flex;align-items:center;gap:14px;padding:6px 20px 20px">
+      <img class="brand" src="assets/sg-mono-deep.png" alt="SG Real Estates logo" style="width:46px">
+      <div><div class="display" style="font-size:20px">SG Real Estates</div><div class="muted" style="font-size:13px">Buying Advisory | Construction Services</div></div>
+    </div>
+    <div class="list">
+      <a class="li" href="tel:+919115105609"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg><span class="grow">Call us<small>+91 91151 05609</small></span></a>
+      <a class="li" href="https://wa.me/919115105609" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-wa"/></svg><span class="grow">WhatsApp<small>Send a message</small></span></a>
+      <button class="li" id="shareBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg><span class="grow">Share the app<small>Send it to friends or family</small></span></button>
+    </div>
+    <div class="label" style="padding:24px 20px 10px">Settings</div>
+    <div class="list">
+      <button class="li" data-theme-toggle role="switch" id="themeRow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-moon"/></svg><span class="grow">Dark mode</span><span class="tog" aria-hidden="true"></span></button>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" id="tabs" aria-label="Main">
+  <button data-go="home"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button data-go="projects"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="1"/><path d="M9 6h1M14 6h1M9 10h1M14 10h1M9 14h1M14 14h1M10 22v-4h4v4"/></svg>Projects</button>
+  <button data-go="enquiries"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6v3H9zM8 5H6a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2M9 12h6M9 16h4"/></svg>Queries</button>
+  <button data-go="profile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>Contact</button>
+</nav>
+</main>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.3z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.4-2-1-1 .8a4 4 0 0 1-1.9-1.9l.8-1-1-2z"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5a6.5 6.5 0 0 0 10 10z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+</svg>
+
+<script>
+(() => {
+  /* To receive queries on your server / Google Sheet, put the URL here (JSON POST). */
+  const ENDPOINT = '';
+  const WHATSAPP = '919115105609';
+  const STORE = 'sg-queries';
+  const LOGO = { light: 'assets/sg-mono-deep.png', dark: 'assets/sg-mono-gold.png' };
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const root = document.documentElement;
+  const TABS = ['home', 'projects', 'enquiries', 'profile'];
+  let current = 'splash', previous = 'home';
+
+  /* theme */
+  function setTheme(t) {
+    root.setAttribute('data-theme', t);
+    try { localStorage.setItem('sg-theme', t); } catch (e) {}
+    $('meta[name=theme-color]').content = t === 'dark' ? '#0E0D0B' : '#FBF9F5';
+    $$('img.brand').forEach(i => (i.src = LOGO[t]));
+    $$('.theme-ic').forEach(u => u.setAttribute('href', t === 'dark' ? '#i-sun' : '#i-moon'));
+    $('#themeRow').setAttribute('aria-checked', t === 'dark');
+  }
+  setTheme(root.getAttribute('data-theme'));
+
+  /* navigation */
+  function go(id) {
+    if (id === current) return;
+    if (TABS.includes(current)) previous = current;
+    $$('.screen').forEach(s => s.classList.remove('active', 'push'));
+    const el = document.getElementById(id);
+    void el.offsetWidth;
+    el.classList.add('active');
+    if (!TABS.includes(id)) el.classList.add('push');
+    $$('.scroll', el).forEach(s => (s.scrollTop = 0));
+    $('#tabs').classList.toggle('show', TABS.includes(id));
+    $$('#tabs button').forEach(b => b.dataset.go === id ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+    $('#advErr').textContent = ''; $('#conErr').textContent = '';
+    current = id;
+    if (id === 'enquiries') renderQueries();
+    history.replaceState(null, '', '#' + id);
+  }
+
+  /* option buttons */
+  const choice = {};
+  function pick(key, value) {
+    choice[key] = value;
+    $$(`[data-opts="${key}"] .opt`).forEach(b => b.setAttribute('aria-pressed', b.textContent === value));
+  }
+  $$('[data-opts]').forEach(box => {
+    box.dataset.list.split('|').forEach(v => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'opt'; b.textContent = v;
+      b.addEventListener('click', () => pick(box.dataset.opts, v));
+      box.appendChild(b);
+    });
+    pick(box.dataset.opts, box.dataset.default);
+  });
+
+  document.addEventListener('click', e => {
+    const t = e.target;
+    if (t.closest('[data-theme-toggle]')) { setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); return; }
+    if (t.closest('[data-back]')) { go(previous); return; }
+    const g = t.closest('[data-go]');
+    if (g) { go(g.dataset.go); return; }
+    const p = t.closest('[data-prefill]');
+    if (p) {
+      const [screen, kv] = p.dataset.prefill.split('|');
+      const [k, v] = kv.split('=');
+      pick(k, v); go(screen); return;
+    }
+    const q = t.closest('[data-enquire]');
+    if (q) { $('#advForm').elements.location.value = q.dataset.enquire; go('advisory'); }
+  });
+
+  $('#shareBtn').addEventListener('click', () => {
+    const data = { title: 'SG Real Estates', text: 'SG Real Estates: buying advisory and construction services', url: location.href.split('#')[0] };
+    if (navigator.share) navigator.share(data).catch(() => {});
+    else window.open('https://wa.me/?text=' + encodeURIComponent(data.text + ' ' + data.url), '_blank');
+  });
+
+  /* storage */
+  const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || []; } catch (e) { return []; } };
+  const save = l => { try { localStorage.setItem(STORE, JSON.stringify(l)); } catch (e) {} };
+
+  function renderQueries() {
+    const list = load();
+    $('#empty').style.display = list.length ? 'none' : 'block';
+    const box = $('#qList'); box.innerHTML = '';
+    list.forEach((q, i) => {
+      const el = document.createElement('div');
+      el.className = 'qitem'; el.style.animationDelay = i * 0.04 + 's';
+      el.innerHTML = '<div class="top"><b></b><span></span></div><div class="k"></div><div class="s"></div><div class="st"><i></i>Advisor will call</div>';
+      el.querySelector('.top b').textContent = q.id;
+      el.querySelector('.top span').textContent = new Date(q.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      el.querySelector('.k').textContent = q.kind;
+      el.querySelector('.s').textContent = q.summary;
+      box.appendChild(el);
+    });
+  }
+
+  /* forms */
+  function check(form, err) {
+    const F = form.elements, name = F.name.value.trim(), digits = F.phone.value.replace(/\D/g, '').slice(-10);
+    if (!name) { err.textContent = 'Please enter your name.'; F.name.focus(); return null; }
+    if (!/^[6-9]\d{9}$/.test(digits)) { err.textContent = 'Please enter a valid 10-digit mobile number.'; F.phone.focus(); return null; }
+    err.textContent = '';
+    return { name, phone: '+91 ' + digits.slice(0, 5) + ' ' + digits.slice(5) };
+  }
+
+  function submit(q, c) {
+    q.id = 'SG' + String(Date.now()).slice(-5);
+    q.createdAt = new Date().toISOString();
+    q.name = c.name; q.phone = c.phone;
+    save([q, ...load()]);
+    if (ENDPOINT) fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(q) }).catch(() => {});
+    $('#sName').textContent = c.name.split(' ')[0];
+    $('#sPhone').textContent = c.phone;
+    $('#sId').textContent = q.id;
+    $('#sKind').textContent = q.kind;
+    $('#sSummary').textContent = q.summary;
+    const msg = `Hello SG Real Estates,\nI have sent a query through your app.\n\nRef: ${q.id}\n${q.kind}\n${q.summary}\nName: ${c.name}\nMobile: ${c.phone}`;
+    $('#sWa').href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+    go('success');
+  }
+
+  $('#advForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target, c = check(f, $('#advErr')); if (!c) return;
+    const loc = f.elements.location.value.trim();
+    submit({ kind: 'Buying Advisory', type: choice.ptype, budget: choice.budget, purpose: choice.purpose, location: loc,
+      summary: `${choice.ptype}, ${choice.budget}${loc ? ', ' + loc : ''}` }, c);
+    f.reset();
+  });
+  $('#conForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target, c = check(f, $('#conErr')); if (!c) return;
+    const plot = f.elements.plot.value.trim(), city = f.elements.city.value.trim();
+    submit({ kind: 'Construction: ' + choice.service, service: choice.service, floors: choice.floors, timeline: choice.timeline, plot, city,
+      summary: [choice.floors, plot, city, choice.timeline].filter(Boolean).join(', ') }, c);
+    f.reset();
+  });
+
+  /* start */
+  const start = location.hash.slice(1);
+  if (start && document.getElementById(start) && !['splash', 'success'].includes(start)) go(start);
+  else setTimeout(() => current === 'splash' && go('home'), 1800);
+})();
+</script>
+</body>
+</html>
